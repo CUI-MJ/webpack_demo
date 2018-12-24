@@ -1,6 +1,7 @@
 const path = require('path')
+const webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const isDev = process.env.NODE_env === 'development'
 /**
  * webpack 本质就是js 的静态文件打包器
@@ -25,6 +26,10 @@ const config = {
                 use: ['vue-loader']
             },
             {
+                test: /\.jsx$/,
+                use: ['babel-loader']
+            },
+            {
                 test: /\.css$/,
                 use: ['vue-style-loader', 'css-loader']
             },
@@ -43,6 +48,12 @@ const config = {
                 use: [
                     'style-loader',
                     'css-loader',
+                    {
+                        loader:'postcss-loader',
+                        options:{
+                            sourceMap :true,
+                        }
+                    },
                     'stylus-loader'
                 ]
             },
@@ -51,11 +62,23 @@ const config = {
     },
     plugins: [
         new VueLoaderPlugin(),
-        new HtmlWebpackPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({
+            'process.env':{
+                NODE_ENV: isDev? '"development"' : '"production"'
+            }
+        }),
+        new HtmlWebpackPlugin({
+            // template : path.resolve(__dirname, 'index.html'),
+        }),
+        new webpack.NoEmitOnErrorsPlugin()  //减少没用的错误信息提示
     ]
 }
 if(isDev){
+    //整个黑窗调试代码比较整洁
+    config.devtool = '#cheap-module-eval-source-map'
     config.devServer = {
+        contentBase: path.join(__dirname, "public"),
         compress: true,
         port: 9000,
         host:'0.0.0.0',
@@ -63,6 +86,8 @@ if(isDev){
             warnings: true,
             errors: true
         },
+        hot: true,
+        inline:true,
     }
 }
 

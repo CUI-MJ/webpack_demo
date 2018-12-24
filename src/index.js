@@ -2,6 +2,7 @@ import Vue from 'vue'
 
 import App from './App.vue'
 
+import '../asset/styles/global.styl'
 var root = document.createElement('div')
 document.body.appendChild(root)
 new Vue({
